@@ -1,53 +1,43 @@
 # -*- coding: UTF-8 -*-
 import requests
 import re
-import json
 from http.server import BaseHTTPRequestHandler
-from bs4 import BeautifulSoup
+import json
 
-def github_json(user,repo,branch):
-    if user =='':
-        result = 'The user cannot be none!'
-    else:
-        try:
-            if repo =='':
-                repo = 'friends'
-            if branch =='':
-                branch = 'master'
-            requests_path = 'https://github.com/' + user + '/' +repo + '/blob/'+branch+'/friendlist.json'
-            r = requests.get(requests_path)
-            r.encoding = 'utf-8'
-            gitpage = r.text
-            soup = BeautifulSoup(gitpage, 'html.parser')
-            main_content = soup.find('td',id = 'LC1').text
-            result = json.loads(main_content)
-        except:
-            result = 'Incorrect user parameter!Please check!'
-    return result
+def list_split(items, n):
+    return [items[i:i + n] for i in range(0, len(items), n)]
+def getdata(name):
+    gitpage = requests.get("https://github.com/" + name)
+    data = gitpage.text
+    datadatereg = re.compile(r'data-date="(.*?)" data-level')
+    datacountreg = re.compile(r'<span class="sr-only">(.*?) contribution')
+    datadate = datadatereg.findall(data)
+    datacount = datacountreg.findall(data)
+    datacount = list(map(int, [0 if i == "No" else i for i in datacount]))
 
+    # 将datadate和datacount按照字典序排序
+    sorted_data = sorted(zip(datadate, datacount))
+    datadate, datacount = zip(*sorted_data)
+    
+    contributions = sum(datacount)
+    datalist = []
+    for index, item in enumerate(datadate):
+        itemlist = {"date": item, "count": datacount[index]}
+        datalist.append(itemlist)
+    datalistsplit = list_split(datalist, 7)
+    returndata = {
+        "total": contributions,
+        "contributions": datalistsplit
+    }
+    return returndata
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path
-        path = path.replace("'", '"')
-        repo_reg = re.compile(r'repo="(.*?)"')
-        user_reg = re.compile(r'user="(.*?)"')
-        branch_reg = re.compile(r'branch="(.*?)"')
-        if user_reg.findall(path):
-            user = user_reg.findall(path)[0]
-        else:
-            user = ''
-        if repo_reg.findall(path):
-            repo = repo_reg.findall(path)[0]
-        else:
-            repo = 'friends'
-        if branch_reg.findall(path):
-            branch = branch_reg.findall(path)[0]
-        else:
-            branch = 'master'
-        data = github_json(user,repo,branch)
+        user = path.split('?')[1]
+        data = getdata(user)
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Content-type', 'application/json')
         self.end_headers()
-        self.wfile.write(json.dumps(data).encode())
+        self.wfile.write(json.dumps(data).encode('utf-8'))
         return
