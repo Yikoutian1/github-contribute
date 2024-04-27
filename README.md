@@ -1,7 +1,7 @@
 # 项目是用来做什么的?
 获取 GitHub 的用户贡献信息
 
-此项目 fork 自 [python_github_calendar_api](https://github.com/Zfour/python_github_calendar_api)仓库，原理通过 Python 获取 GitHub 的用户贡献信息，你可以部署到 Vercel 上作为 API 使用。
+此项目原理是通过 Python 获取 GitHub 的用户贡献信息，你可以部署到 Vercel 上作为 API 使用。
 
 如果你有 Hexo 博客，可以搭配使用 hexo-get-github-contribute 插件在前端渲染贡献热力图。(此插件是参考[fork作者](https://github.com/Zfour/python_github_calendar_api)所修改的)
 
@@ -37,3 +37,5 @@ githubcalendar:
     plus_style: ""
 ```
 对于githubcalendar.user处,我们添加的value为`user=yikoutian1`, 把等于号后面的昵称更换成你的即可
+
+（原始代码：自 [Link](https://github.com/Zfour/python_github_calendar_api)仓库）
