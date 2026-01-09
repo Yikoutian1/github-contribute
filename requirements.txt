@@ -2,4 +2,4 @@ certifi==2020.12.5
 chardet==4.0.0
 idna==2.10
 requests==2.31.0  # 2023年6月发布，与urllib3 2.6.0兼容良好
-urllib3==2.6.0
+urllib3==2.6.3
